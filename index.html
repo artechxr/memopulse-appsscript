@@ -2,45 +2,67 @@
 <html>
 <head>
     <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoPulse</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-      body { font-family: sans-serif; }
-      .glass { background: rgba(255, 255, 255, 0.9); border: 1px solid #ddd; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom "No file chosen" text color fix */
+        input[type="file"] { color: #94a3b8; } 
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-[#1e1e2e] min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div class="glass p-8 rounded-xl w-full max-w-lg shadow-xl">
-        <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Memo<span class="text-indigo-600">Pulse</span></h1>
-            <p class="text-gray-500 text-sm">Automate Your Minutes</p>
+    <div class="fixed inset-0 bg-gradient-to-br from-[#1a1b4b] via-[#2e2a5b] to-[#1e1e2e] -z-10"></div>
+
+    <div class="w-full max-w-lg">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold tracking-tight text-white mb-2">
+                Memo<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Pulse</span><span class="text-blue-500">.</span>
+            </h1>
+            <p class="text-gray-400 text-lg">Automate Your Minutes.</p>
+            <p class="text-gray-500 text-sm mt-1">Record. Upload. <span class="text-blue-400 font-semibold">Done.</span></p>
         </div>
 
-        <form id="pulseForm" class="space-y-4">
+        <form id="pulseForm" class="space-y-6">
+            
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase">Recipient Email</label>
-                <input type="email" name="email" required placeholder="boss@company.com"
-                    class="w-full mt-1 p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Recipients</label>
+                <input type="text" name="email" required placeholder="boss@company.com, team@company.com"
+                    class="w-full bg-[#25263a] border border-[#363753] text-gray-300 placeholder-gray-600 rounded-lg p-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase">Audio File</label>
-                <input type="file" name="audioFile" accept="audio/*" required
-                    class="w-full mt-1 p-2 border rounded-lg bg-white">
-                <p class="text-xs text-gray-400 mt-1">Max size: 10MB (Apps Script Limit)</p>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Audio File</label>
+                <div class="bg-[#25263a] border border-[#363753] rounded-lg p-2 transition-all hover:border-blue-500/50">
+                    <input type="file" name="audioFile" accept="audio/*" required
+                        class="block w-full text-sm
+                               file:mr-4 file:py-2 file:px-6
+                               file:rounded-md file:border-0
+                               file:text-xs file:font-bold
+                               file:bg-blue-600 file:text-white
+                               file:cursor-pointer hover:file:bg-blue-500
+                               cursor-pointer">
+                </div>
             </div>
 
-            <button type="button" onclick="submitData()" id="btn"
-                class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition">
-                🔥GENERATE PULSE
+            <button type="button" onclick="submitData()" id="btn" 
+                class="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-900/30 transition transform hover:scale-[1.02] flex items-center justify-center gap-2">
+                <span>⚡</span> GENERATE PULSE
             </button>
         </form>
 
-        <div id="status" class="hidden mt-4 text-center text-sm text-indigo-600 animate-pulse">
-            Processing... This may take up to 60 or more seconds...
+        <div id="status" class="hidden mt-8 text-center">
+            <div class="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500 mb-2"></div>
+            <p class="text-blue-400 text-sm font-medium animate-pulse">Processing your audio...</p>
         </div>
         
-        <div id="result" class="hidden mt-4 p-4 bg-white rounded border text-sm"></div>
+        <div id="result" class="hidden mt-6 p-4 bg-[#25263a] border border-green-900/50 rounded-xl text-sm text-green-400 text-center shadow-lg"></div>
+
     </div>
 
     <script>
@@ -50,37 +72,37 @@
             var status = document.getElementById('status');
             var result = document.getElementById('result');
 
-            // Simple Validation
             if(!form.email.value || !form.audioFile.files.length) {
-                alert("Please fill all fields");
+                alert("Please select a file and enter an email.");
                 return;
             }
 
-            // UI Updates
+            // Lock UI
             btn.disabled = true;
-            btn.innerText = "Working...";
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
             status.classList.remove('hidden');
             result.classList.add('hidden');
 
-            // Send to Google Apps Script Backend
             google.script.run
                 .withSuccessHandler(function(response) {
                     status.classList.add('hidden');
                     btn.disabled = false;
-                    btn.innerText = "Generate Another";
-
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    
                     if (response.status === 'success') {
-                        result.innerHTML = '<span class="text-green-600 font-bold">✅ Sent!</span><br><br>' + response.preview;
+                        result.innerHTML = `✅ <b>Done!</b> Minutes sent to ${form.email.value}`;
+                        result.className = "mt-6 p-4 bg-[#1e293b] border border-green-500/30 rounded-xl text-green-400 text-center";
                     } else {
-                        result.innerHTML = '<span class="text-red-600 font-bold">❌ Error:</span> ' + response.message;
+                        result.innerHTML = `❌ ${response.message}`;
+                        result.className = "mt-6 p-4 bg-[#1e293b] border border-red-500/30 rounded-xl text-red-400 text-center";
                     }
                     result.classList.remove('hidden');
                 })
                 .withFailureHandler(function(err) {
                     status.classList.add('hidden');
                     btn.disabled = false;
-                    btn.innerText = "Try Again";
-                    alert("Server Failure: " + err);
+                    result.innerHTML = `❌ System Error: ${err}`;
+                    result.classList.remove('hidden');
                 })
                 .processForm(form);
         }
