@@ -3,7 +3,7 @@
 MemoPulse is an AI-powered meeting minutes generator that runs entirely on Google Apps Script. It uses **Google Gemini** to listen to audio files and email professional summaries to recipients.
 
 ### Features
-- 🎙️ **Audio to Text:** Upload MP3/WAV files directly.
+- 🎙️ **Audio to Text:** Upload MP3 files directly.
 - 🧠 **AI Analysis:** Uses Gemini 2.5 Flash for summarization.
 - 📧 **Auto-Email:** Sends formatted HTML minutes via Gmail.
 - ☁️ **Serverless:** Hosted 100% on Google Servers (No AWS/Render costs).
